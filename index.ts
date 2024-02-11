@@ -1,5 +1,4 @@
 import {
-  rx,
   map,
   repeat,
   merge,
@@ -8,16 +7,6 @@ import {
   takeUntil,
   Subject,
 } from 'rxjs';
-const sequence = [
-  {
-    label: 'item1',
-    duration: 500,
-  },
-  {
-    label: 'item2',
-    duration: 1000,
-  },
-];
 
 let missionEventCount = 0;
 let predefinedHighCount = 0;
@@ -36,12 +25,12 @@ const predefinedHigh$ = interval(1000).pipe(
   map(() => `Predefined hight ${predefinedHighCount++}`)
 );
 
-rx(merge(missionEvent$, predefinedHigh$)).subscribe(console.log);
-
 setTimeout(() => {
   pause$.next(true);
-}, 2000);
+}, 3000);
 
 setTimeout(() => {
   pause$.next(false);
-}, 4000);
+}, 5000);
+
+merge(missionEvent$, predefinedHigh$).subscribe(console.log);
