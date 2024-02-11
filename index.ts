@@ -6,31 +6,31 @@ import {
   filter,
   takeUntil,
   Subject,
+  delay,
+  tap,
+  take,
+  finalize,
 } from 'rxjs';
 
-let missionEventCount = 0;
-let predefinedHighCount = 0;
+let sourceOneCount = 0;
+let sourceTwoCount = 0;
 
-const pause$ = new Subject();
-const ons$ = pause$.pipe(filter((v) => !!v));
-const offs$ = pause$.pipe(filter((v) => !v));
+const sourceOnePause$ = new Subject();
+const ons$ = sourceOnePause$.pipe(filter((v) => !!v));
+const offs$ = sourceOnePause$.pipe(filter((v) => !v));
 
-const missionEvent$ = interval(1000).pipe(
-  map(() => `Mission Event count ${missionEventCount++}`),
+const sourceOne$ = interval(1000).pipe(
+  map(() => `Source one count : ${sourceOneCount++}`),
   takeUntil(ons$),
   repeat({ delay: () => offs$ })
 );
 
-const predefinedHigh$ = interval(1000).pipe(
-  map(() => `Predefined hight ${predefinedHighCount++}`)
+const sourceTwo$ = interval(1000).pipe(
+  delay(5000),
+  take(5),
+  tap(() => sourceOnePause$.next(true)),
+  map(() => `Source Two ${sourceTwoCount++}`),
+  finalize(() => sourceOnePause$.next(false))
 );
 
-setTimeout(() => {
-  pause$.next(true);
-}, 3000);
-
-setTimeout(() => {
-  pause$.next(false);
-}, 5000);
-
-merge(missionEvent$, predefinedHigh$).subscribe(console.log);
+merge(sourceOne$, sourceTwo$).subscribe(console.log);
